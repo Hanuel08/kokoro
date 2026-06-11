@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@openrouter/sdk": "^0.12.35",
+    "openai": "^6.38.0"
+  },
+  "name": "kokoro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hanuel08/kokoro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Hanuel08/kokoro/issues"
+  },
+  "homepage": "https://github.com/Hanuel08/kokoro#readme"
+}
