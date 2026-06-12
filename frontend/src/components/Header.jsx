@@ -1,21 +1,23 @@
 import { useTheme } from "../context/ThemeContext";
+import logo from "../../public/assets/img/kokoro-logo-sin-fondo.png";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
+    <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-dark-border bg-white/50 dark:bg-dark-base/50 backdrop-blur-md sticky top-0 z-10">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg">
+        {/* <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg">
           <span className="text-white font-bold text-sm">K</span>
-        </div>
-        <h1 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600 dark:from-violet-400 dark:to-fuchsia-400">
+        </div> */}
+        <img src={logo} alt="Kokoro logo" className="w-8 h-8" />
+        <h1 className="text-xl font-semibold text-primary">
           Kokoro
         </h1>
       </div>
       <button
         onClick={toggleTheme}
-        className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+        className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-dark-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
         aria-label="Toggle theme"
       >
         {theme === "light" ? (

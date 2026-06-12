@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "@openrouter/sdk": "^0.12.35",
+    "@tabler/icons-react": "^3.44.0",
     "openai": "^6.38.0"
   },
   "name": "kokoro",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "devDependencies": {},
   "workspaces": [
     "frontend",
     "backend"

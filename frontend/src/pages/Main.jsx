@@ -1,15 +1,17 @@
 import { Chat } from "../components/Chat.jsx"
 import { Avatar } from "../components/Avatar.jsx"
 import { Header } from "../components/Header.jsx"
+import { EmotionIndicator } from "../components/EmotionIndicator.jsx"
 
 export function Main() {
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden">
+    <div className="flex flex-col h-screen relative overflow-hidden">
       <Header />
+      <EmotionIndicator />
 
-      <main className="flex-1 flex w-full max-w-6xl mx-auto relative z-0">
+      <main className="flex-1 flex w-full max-w-6xl mx-auto relative z-0 min-h-0">
 
-        <div className="flex flex-col w-full md:w-2/3 lg:w-3/4 p-4 z-10">
+        <div className="flex flex-col w-full md:w-2/3 lg:w-3/4 p-4 z-10 h-full">
           <Chat />
         </div>
 

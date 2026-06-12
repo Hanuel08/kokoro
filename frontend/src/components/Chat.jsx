@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { helpHttp } from "../helpers/helpHttp.js";
 import Markdown from "react-markdown";
 
+import { IconArrowNarrowUp } from '@tabler/icons-react';
+
 export function Chat() {
   const URL = "http://localhost:4000/chat";
   const { post } = helpHttp();
@@ -94,7 +96,7 @@ export function Chat() {
   };
 
   return (
-    <div className="flex flex-col w-3xl h-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
+    <div className="flex flex-col w-3xl h-full bg-white dark:bg-dark-base rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border overflow-hidden transition-colors duration-300">
 
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
         {messages.map((msg, idx) => (
@@ -103,8 +105,8 @@ export function Chat() {
 
               <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
                 msg.role === "user"
-                  ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300"
-                  : "bg-gradient-to-tr from-violet-500 to-fuchsia-500 text-white"
+                  ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light"
+                  : "bg-primary text-white"
               }`}>
                 {msg.role === "user" ? (
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,8 +119,8 @@ export function Chat() {
 
               <div className={`px-4 py-3 rounded-2xl ${
                 msg.role === "user"
-                  ? "bg-indigo-600 text-white rounded-tr-none"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-slate-700"
+                  ? "bg-primary text-white rounded-tr-none"
+                  : "bg-slate-100 dark:bg-dark-elevated text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-dark-border shadow-sm"
               }`}>
                 {msg.content === "" && isTyping && msg.role === "assistant" ? (
                   <div className="flex items-center gap-1 h-6">
@@ -138,10 +140,11 @@ export function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+      <div className="p-4 bg-white dark:bg-dark-base border-t border-slate-200 dark:border-dark-border">
         <form
           onSubmit={handleSubmit}
-          className="relative flex items-end gap-2 max-w-4xl mx-auto bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700 p-2 focus-within:ring-2 focus-within:ring-violet-500/50 focus-within:border-violet-500 transition-all"
+          className="relative flex items-end gap-2 max-w-4xl mx-auto bg-slate-50 dark:bg-dark-surface rounded-3xl border border-slate-200 dark:border-dark-border p-2 
+            transition-all"
         >
           <textarea
             ref={textareaRef}
@@ -157,11 +160,15 @@ export function Chat() {
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="flex-shrink-0 mb-1 mr-1 p-2.5 rounded-full bg-violet-600 hover:bg-violet-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+            className="flex-shrink-0 mb-1 mr-1 p-2.5 rounded-full bg-primary hover:bg-primary-hover cursor-pointer text-white transition-colors 
+              focus:outline-none"
           >
-            <svg className="w-5 h-5 translate-x-px -translate-y-px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {/* <svg className="w-5 h-5 translate-x-px -translate-y-px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
+            </svg> */}
+
+            <IconArrowNarrowUp stroke={2} size={24} />
+
           </button>
         </form>
         <div className="text-center mt-2">

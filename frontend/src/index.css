@@ -1,12 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #f42c04;
+  --color-primary-hover: #d82300;
+  --color-primary-light: #ff5433;
+  --color-dark-base: #040403;
+  --color-dark-surface: #11110e;
+  --color-dark-elevated: #1a1a15;
+  --color-dark-border: #282822;
+  --color-dark-hover: #1f1f1a;
+}
+
 @layer base {
   body {
     @apply antialiased text-slate-800 bg-slate-50 transition-colors duration-300;
   }
 
   .dark body {
-    @apply text-slate-100 bg-slate-900;
+    @apply text-slate-100 bg-dark-base;
   }
 }
 
@@ -17,8 +28,8 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+  @apply bg-slate-300 dark:bg-dark-border rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-400 dark:bg-slate-600;
+  @apply bg-slate-400 dark:bg-dark-surface;
 }
