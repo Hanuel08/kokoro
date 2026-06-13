@@ -4,21 +4,26 @@ import {
   IconMoodSad,
   IconMoodAngry,
   IconMoodSurprised,
+  IconMoodNervous,
+  IconMoodSick,
+  IconSparkles,
+  IconHeart,
+  IconFlame,
   IconBrain,
   IconBolt,
   IconHeartbeat
 } from '@tabler/icons-react';
 
-export function EmotionIndicator() {
-  const emotionData = {
+export function EmotionIndicator({ data }) {
+  const emotionData = data ?? {
     emotion: {
       current: "happy",
-      intensity: 0.8
+      intensity: 50
     },
     state: {
-      mood: 75,
-      focus: 90,
-      energy: 85
+      mood: 50,
+      focus: 50,
+      energy: 50
     }
   };
 
@@ -28,8 +33,13 @@ export function EmotionIndicator() {
       case 'sad': return { label: 'Triste', icon: IconMoodSad, color: 'text-blue-500' };
       case 'angry': return { label: 'Enojada', icon: IconMoodAngry, color: 'text-red-500' };
       case 'surprised': return { label: 'Sorprendida', icon: IconMoodSurprised, color: 'text-yellow-500' };
-      case 'excited': return { label: 'Emocionada', icon: IconMoodSmile, color: 'text-orange-500' };
-      case 'thinking': return { label: 'Pensando', icon: IconBrain, color: 'text-purple-500' };
+      case 'excited': return { label: 'Emocionada', icon: IconSparkles, color: 'text-orange-500' };
+      case 'fear': return { label: 'Miedo', icon: IconMoodNervous, color: 'text-purple-500' };
+      case 'love': return { label: 'Amor', icon: IconHeart, color: 'text-pink-500' };
+      case 'hate': return { label: 'Odio', icon: IconFlame, color: 'text-orange-600' };
+      case 'disgust': return { label: 'Asco', icon: IconMoodSick, color: 'text-lime-500' };
+      case 'thinking': return { label: 'Pensando', icon: IconBrain, color: 'text-indigo-500' };
+      case 'neutral': 
       default: return { label: 'Neutral', icon: IconMoodNeutral, color: 'text-gray-500' };
     }
   };
@@ -45,7 +55,8 @@ export function EmotionIndicator() {
   };
 
   return (
-    <div className="absolute right-8 top-24 w-72 p-4 bg-white/80 dark:bg-dark-elevated/90 backdrop-blur-md border border-slate-200 dark:border-dark-border rounded-2xl shadow-xl z-20 transition-all duration-300 pointer-events-none">
+    <div className="w-full max-w-[18rem] p-4 bg-white/80 dark:bg-dark-elevated/90 backdrop-blur-md border border-slate-200 dark:border-dark-border rounded-2xl shadow-xl 
+      transition-all duration-300 pointer-events-none">
       <div className="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-dark-border pb-3">
         <div className={`p-2 rounded-full bg-slate-50 dark:bg-dark-surface shadow-inner ${color}`}>
           <EmotionIcon stroke={2} size={24} />

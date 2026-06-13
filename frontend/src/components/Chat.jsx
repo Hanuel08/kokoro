@@ -4,13 +4,17 @@ import Markdown from "react-markdown";
 
 import { IconArrowNarrowUp } from '@tabler/icons-react';
 
-export function Chat() {
-  const URL = "http://localhost:4000/chat";
+export function Chat({ onEmotionUpdate }) {
+  const BASE_URL = "http://localhost:4000";
+  const URL_ANSWERS = `${BASE_URL}/chat`;
+  const URL_EMOTION = `${BASE_URL}/emotion`;
+
   const { post } = helpHttp();
 
   const [messages, setMessages] = useState([
     { role: "assistant", content: "¡Hola! Soy Kokoro. ¿En qué puedo ayudarte hoy?" }
   ]);
+
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
@@ -54,7 +58,7 @@ export function Chat() {
 
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
-    const options = {
+    const optionsAnswers = {
       headers: {
         "Content-Type": "application/json",
         "accept": "text/plain"
@@ -62,7 +66,29 @@ export function Chat() {
       body: { prompt: userMsg }
     };
 
-    post(URL, options)
+    const optionsEmotion = {
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json"
+      },
+      body: { prompt: userMsg }
+    };
+
+
+    post(URL_EMOTION, optionsEmotion)
+      .then((data) => {
+        if (!data || data?.err || !data?.emotion?.current) {
+          console.warn("Emotion: data inválida:", data);
+          return;
+        }
+        console.log("Emotion: ", data);
+        onEmotionUpdate(data);
+      })
+      .catch((err) => {
+        console.warn("Emotion fetch error:", err);
+      });
+
+    post(URL_ANSWERS, optionsAnswers)
       .then(async (res) => {
         if (!res.ok) throw new Error("Error al obtener la respuesta");
 
@@ -85,7 +111,7 @@ export function Chat() {
         setIsTyping(false);
       })
       .catch(err => {
-        console.error("Error", err);
+        console.error(err);
         setMessages(prev => {
           const newMsgs = [...prev];
           newMsgs[newMsgs.length - 1].content = "⚠️ *Hubo un error al conectar con el servidor.*";
@@ -160,7 +186,7 @@ export function Chat() {
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="flex-shrink-0 mb-1 mr-1 p-2.5 rounded-full bg-primary hover:bg-primary-hover cursor-pointer text-white transition-colors 
+            className="flex-shrink-0 mb-1 mr-1 p-2.5 rounded-full bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-white transition-colors 
               focus:outline-none"
           >
             {/* <svg className="w-5 h-5 translate-x-px -translate-y-px" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,18 +1,27 @@
+import { useState } from "react";
 import { Chat } from "../components/Chat.jsx"
 import { Avatar } from "../components/Avatar.jsx"
 import { Header } from "../components/Header.jsx"
 import { EmotionIndicator } from "../components/EmotionIndicator.jsx"
 
 export function Main() {
+  const [emotionData, setEmotionData] = useState({
+    emotion: { current: "neutral", intensity: 50 },
+    state: { mood: 50, focus: 50, energy: 50 }
+  });
+
   return (
     <div className="flex flex-col h-screen relative overflow-hidden">
       <Header />
-      <EmotionIndicator />
 
       <main className="flex-1 flex w-full max-w-6xl mx-auto relative z-0 min-h-0">
 
         <div className="flex flex-col w-full md:w-2/3 lg:w-3/4 p-4 z-10 h-full">
-          <Chat />
+          <Chat onEmotionUpdate={setEmotionData} />
+        </div>
+
+        <div className="hidden md:flex md:w-1/3 lg:w-100 py-4 z-10 h-60 justify-start items-center">
+          <EmotionIndicator data={emotionData} />
         </div>
 
         {/* Avatar Area - Responsive positioning (side on desktop, background on mobile) */}

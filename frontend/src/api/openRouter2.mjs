@@ -28,5 +28,5 @@ export async function openRouter2() {
 
   console.log(completion.choices[0].message.content);
   console.log(completion);
-``
+
 }
