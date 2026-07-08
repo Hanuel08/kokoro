@@ -29,7 +29,7 @@ export function Main() {
   }
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden">
+    <div className="flex flex-col h-screen relative overflow-hidden bg-slate-50 dark:bg-dark-base transition-colors duration-300">
       <Header onOpenConfig={handleOpenConfig} />
 
       <main className="flex-1 flex w-[1500px] mx-auto relative z-0 min-h-0">

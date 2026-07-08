@@ -51,8 +51,8 @@ export function EmotionIndicator({ data }) {
   };
 
   return (
-    <div className="w-full max-w-[18rem] p-4 bg-white/80 dark:bg-dark-elevated/90 backdrop-blur-md border border-slate-200 dark:border-dark-border rounded-2xl shadow-xl 
-      transition-all duration-300 pointer-events-none">
+    <div className="w-full max-w-[18rem] p-4 bg-white dark:bg-dark-elevated border border-slate-200 dark:border-dark-border rounded-2xl shadow-lg 
+      transition-colors duration-300 pointer-events-none">
 
       <div className="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-dark-border pb-3">
         <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-primary/10">

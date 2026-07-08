@@ -171,7 +171,8 @@ export function Chat({ onEmotionUpdate }) {
     : "/assets/img/user/default_profile.jpg";
 
   return (
-    <div className="flex flex-col w-3xl h-full bg-white dark:bg-dark-base rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border overflow-hidden transition-colors duration-300">
+    <div className="flex flex-col w-3xl h-full bg-white dark:bg-dark-base rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border overflow-hidden transition-colors 
+    duration-300">
 
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
         {messages.map((msg, idx) => (
