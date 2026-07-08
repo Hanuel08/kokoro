@@ -23,15 +23,17 @@ ttsRouter.post("/tts", async (req, res) => {
       },
       body: JSON.stringify({
         Text: text,
-        VoiceId: voice || "Scarlett",
+        VoiceId: voice || "Lucía",
         Bitrate: "192k",
-        Pitch: 1.0,
-        Speed: 0.0,
+        Pitch: "1",
+        Speed: "0",
       }),
+      redirect: "follow",
     });
 
     if (!response.ok) {
-      console.error("Unreal Speech error:", response.status);
+      const errBody = await response.text().catch(() => "(no body)");
+      console.error("Unreal Speech error:", response.status, errBody);
       return res.status(502).json({ error: "TTS service error" });
     }
 

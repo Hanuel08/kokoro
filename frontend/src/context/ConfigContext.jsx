@@ -17,6 +17,35 @@ const AVAILABLE_MODELS = [
 
 const DEFAULT_AI_MODEL = "google/gemma-4-31b-it:free";
 
+const TTS_VOICES = [
+  { label: "American Female", group: "American Female",
+    voices: ["Autumn", "Melody", "Hannah", "Emily", "Ivy", "Kaitlyn", "Luna", "Willow", "Lauren", "Sierra"] },
+  { label: "American Male", group: "American Male",
+    voices: ["Noah", "Jasper", "Caleb", "Ronan", "Ethan", "Daniel", "Zane"] },
+  { label: "Chinese Female", group: "Chinese Female",
+    voices: ["Mei", "Lian", "Ting", "Jing"] },
+  { label: "Chinese Male", group: "Chinese Male",
+    voices: ["Wei", "Jian", "Hao", "Sheng"] },
+  { label: "Spanish Female", group: "Spanish Female",
+    voices: ["Lucía"] },
+  { label: "Spanish Male", group: "Spanish Male",
+    voices: ["Mateo", "Javier"] },
+  { label: "French Female", group: "French Female",
+    voices: ["Élodie"] },
+  { label: "Hindi Female", group: "Hindi Female",
+    voices: ["Ananya", "Priya"] },
+  { label: "Hindi Male", group: "Hindi Male",
+    voices: ["Arjun", "Rohan"] },
+  { label: "Italian Female", group: "Italian Female",
+    voices: ["Giulia"] },
+  { label: "Italian Male", group: "Italian Male",
+    voices: ["Luca"] },
+  { label: "Portuguese Female", group: "Portuguese Female",
+    voices: ["Camila"] },
+  { label: "Portuguese Male", group: "Portuguese Male",
+    voices: ["Thiago", "Rafael"] },
+];
+
 const DEFAULT_CONFIG = {
   modelId: "Hiyori",
   characterName: "Kokoro",
@@ -24,6 +53,10 @@ const DEFAULT_CONFIG = {
   aiModel: DEFAULT_AI_MODEL,
   profileImages: {},
   userProfileUploaded: false,
+  tts: {
+    enabled: true,
+    voice: "Lucía",
+  },
 };
 
 function loadConfig() {
@@ -81,6 +114,7 @@ export function ConfigProvider({ children }) {
         resetConfig,
         availableModels: AVAILABLE_MODELS,
         getProfileImage,
+        ttsVoices: TTS_VOICES,
       }}
     >
       {children}

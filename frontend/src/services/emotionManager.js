@@ -19,22 +19,24 @@ const PARAM_VARIANTS = {
   eyeropen:      ["ParamEyeROpen",   "PARAM_EYE_R_OPEN"],
   eyelsmile:     ["ParamEyeLSmile",  "PARAM_EYE_L_SMILE"],
   eyersmile:     ["ParamEyeRSmile",  "PARAM_EYE_R_SMILE"],
-  // Mouth
-  mouthform:     ["ParamMouthForm",  "PARAM_MOUTH_FORM"],
-  mouthopeny:    ["ParamMouthOpenY", "PARAM_MOUTH_OPEN_Y"],
-  // Other face
-  cheek:         ["ParamCheek",      "PARAM_CHEEK"],
-  // Arms (varies heavily between models; we try multiple names)
-  arml:          ["ParamArmL",       "PARAM_ARM_L",       "ParamArmAL01"],
-  armr:          ["ParamArmR",       "PARAM_ARM_R",       "ParamArmAR01"],
+  // Mouth - ParamMouthUp and ParamA cover models like Mao without ParamMouthForm
+  mouthform:     ["ParamMouthForm",  "PARAM_MOUTH_FORM",  "ParamMouthUp"],
+  mouthdown:     ["ParamMouthDown",  "PARAM_MOUTH_DOWN"],
+  mouthopeny:    ["ParamMouthOpenY", "PARAM_MOUTH_OPEN_Y", "ParamA"],
+  mouthangry:    ["ParamMouthAngry", "PARAM_MOUTH_ANGRY"],
+  // Other face - ParamTere/PARAM_TERE covers Haru, Hibiki, Wanko
+  cheek:         ["ParamCheek",      "PARAM_CHEEK",        "ParamTere", "PARAM_TERE"],
+  // Arms (varies heavily between models)
+  arml:          ["ParamArmL",       "PARAM_ARM_L",        "ParamArmAL01", "ParamArmL01", "ParamArmLA01", "ParamArmLA", "ParamArmLB"],
+  armr:          ["ParamArmR",       "PARAM_ARM_R",        "ParamArmAR01", "ParamArmR01", "ParamArmRA01", "ParamArmRA", "ParamArmRB"],
   // Breath
   breath:        ["ParamBreath",     "PARAM_BREATH"],
-  // Shoulders (Natori/Haru)
+  // Shoulders
   shoulderl:     ["ParamLeftShoulderUp",  "PARAM_LEFT_SHOULDER_UP"],
   shoulderr:     ["ParamRightShoulderUp", "PARAM_RIGHT_SHOULDER_UP"],
-  // Waist (Natori)
+  // Waist
   waistz:        ["ParamWaistAngleZ", "PARAM_WAIST_ANGLE_Z"],
-  // Whole-body position (Natori)
+  // Whole-body position
   bodypos:       ["ParamBodyPosition", "PARAM_BODY_POSITION"],
 };
 
@@ -106,6 +108,7 @@ class EmotionManager {
   happy(t) {
     return {
       mouthform:    0.8 * t,
+      mouthdown:   -0.7 * t,
       mouthopeny:   0.2 * t,
       eyelsmile:    0.9 * t,
       eyersmile:    0.9 * t,
@@ -129,6 +132,7 @@ class EmotionManager {
   sad(t) {
     return {
       mouthform:   -0.6 * t,
+      mouthdown:    0.5 * t,
       mouthopeny:   0.05 * t,
       eyelsmile:   -0.3 * t,
       eyersmile:   -0.3 * t,
@@ -153,7 +157,9 @@ class EmotionManager {
   angry(t) {
     return {
       mouthform:   -0.5 * t,
+      mouthdown:    0.4 * t,
       mouthopeny:   0.1 * t,
+      mouthangry:   0.8 * t,
       eyelsmile:   -0.7 * t,
       eyersmile:   -0.7 * t,
       eyelopen:     0.4,
@@ -179,6 +185,7 @@ class EmotionManager {
   surprised(t) {
     return {
       mouthform:    0.3 * t,
+      mouthdown:   -0.2 * t,
       mouthopeny:   0.8 * t,
       eyelsmile:    0,
       eyersmile:    0,
@@ -201,6 +208,7 @@ class EmotionManager {
   excited(t) {
     return {
       mouthform:    0.9 * t,
+      mouthdown:   -0.8 * t,
       mouthopeny:   0.5 * t,
       eyelsmile:    1.0 * t,
       eyersmile:    1.0 * t,
@@ -223,6 +231,7 @@ class EmotionManager {
   fear(t) {
     return {
       mouthform:   -0.2 * t,
+      mouthdown:    0.1 * t,
       mouthopeny:   0.4 * t,
       eyelsmile:   -0.2 * t,
       eyersmile:   -0.2 * t,
@@ -247,6 +256,7 @@ class EmotionManager {
   love(t) {
     return {
       mouthform:    0.7 * t,
+      mouthdown:   -0.6 * t,
       mouthopeny:   0.1 * t,
       eyelsmile:    0.8 * t,
       eyersmile:    0.8 * t,
@@ -270,7 +280,9 @@ class EmotionManager {
   hate(t) {
     return {
       mouthform:   -0.7 * t,
+      mouthdown:    0.6 * t,
       mouthopeny:   0.1 * t,
+      mouthangry:   0.6 * t,
       eyelsmile:   -0.8 * t,
       eyersmile:   -0.8 * t,
       eyelopen:     0.3,
@@ -296,6 +308,7 @@ class EmotionManager {
   disgust(t) {
     return {
       mouthform:   -0.4 * t,
+      mouthdown:    0.3 * t,
       mouthopeny:   0.05 * t,
       eyelsmile:   -0.5 * t,
       eyersmile:   -0.5 * t,
@@ -318,6 +331,7 @@ class EmotionManager {
   thinking(t) {
     return {
       mouthform:   -0.1 * t,
+      mouthdown:    0,
       mouthopeny:   0.05 * t,
       eyelsmile:    0,
       eyersmile:    0,
@@ -342,6 +356,7 @@ class EmotionManager {
   neutral() {
     return {
       mouthform:    0,
+      mouthdown:    0,
       mouthopeny:   0,
       eyelsmile:    0,
       eyersmile:    0,

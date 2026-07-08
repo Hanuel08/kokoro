@@ -32,11 +32,12 @@ export function Chat({ onEmotionUpdate }) {
   const textareaRef = useRef(null);
 
   const speakText = async (text) => {
+    if (!config?.tts?.enabled) return;
     try {
       const res = await fetch(URL_TTS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, voice: config.tts.voice }),
       });
       if (!res.ok) return;
       const blob = await res.blob();
@@ -44,8 +45,8 @@ export function Chat({ onEmotionUpdate }) {
       const audio = new Audio(url);
       audio.onended = () => URL.revokeObjectURL(url);
       audio.play();
-    } catch {
-      // TTS no disponible
+    } catch(err) {
+      console.error("[TTS] TTS no disponible:", err);
     }
   };
 

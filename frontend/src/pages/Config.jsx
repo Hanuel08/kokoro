@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useConfig } from "../context/ConfigContext";
 import { useTheme } from "../context/ThemeContext";
 import { getDefaultProfileImage } from "../helpers/modelImages";
-import { IconSettings, IconUser, IconRobot, IconChevronDown, IconPhoto } from "@tabler/icons-react";
+import { IconSettings, IconUser, IconRobot, IconChevronDown, IconPhoto, IconVolume } from "@tabler/icons-react";
 
 const AI_MODEL_PRESETS = [
   { label: "Gemma 4 31B (free)", value: "google/gemma-4-31b-it:free" },
@@ -13,7 +13,7 @@ const AI_MODEL_PRESETS = [
 ];
 
 export function Config({ onClose }) {
-  const { config, updateConfig, availableModels, getProfileImage } = useConfig();
+  const { config, updateConfig, availableModels, getProfileImage, ttsVoices } = useConfig();
   const { theme, toggleTheme } = useTheme();
 
   const [modelId, setModelId] = useState(config?.modelId || "Hiyori");
@@ -29,6 +29,8 @@ export function Config({ onClose }) {
   const [profileImageUrl, setProfileImageUrl] = useState(
     config?.profileImages?.[modelId] || ""
   );
+  const [ttsEnabled, setTtsEnabled] = useState(config?.tts?.enabled !== false);
+  const [ttsVoice, setTtsVoice] = useState(config?.tts?.voice || "Lucía");
   const [errors, setErrors] = useState({});
 
   const selectedModel = availableModels.find((m) => m.id === modelId) || availableModels[0];
@@ -64,6 +66,7 @@ export function Config({ onClose }) {
       userName: userName.trim(),
       aiModel: useCustom ? customModel.trim() : aiModel,
       profileImages,
+      tts: { enabled: ttsEnabled, voice: ttsVoice },
     });
     onClose?.();
   };
@@ -348,6 +351,60 @@ export function Config({ onClose }) {
               </label>
               {errors.aiModel && <p className="text-red-500 text-xs">{errors.aiModel}</p>}
             </div>
+          </section>
+
+          <section className="bg-white dark:bg-dark-elevated rounded-2xl border border-slate-200 dark:border-dark-border p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <IconVolume size={20} className="text-primary" />
+              Voz (TTS)
+            </h2>
+
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Activar voz</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">El personaje hablará las respuestas en voz alta</p>
+              </div>
+              <button
+                onClick={() => setTtsEnabled(!ttsEnabled)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                  ttsEnabled ? "bg-primary" : "bg-slate-300 dark:bg-dark-border"
+                }`}
+              >
+                <span className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform ${
+                  ttsEnabled ? "translate-x-[22px]" : "translate-x-[2px]"
+                }`} />
+              </button>
+            </div>
+
+            {ttsEnabled && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Voz del personaje
+                </label>
+                <select
+                  value={ttsVoice}
+                  onChange={(e) => setTtsVoice(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-surface text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors appearance-none cursor-pointer"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: "right 0.75rem center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "1.25rem",
+                  }}
+                >
+                  {ttsVoices.map((group) => (
+                    <optgroup key={group.group} label={group.label}>
+                      {group.voices.map((v) => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  Selecciona la voz para el personaje según el idioma que uses
+                </p>
+              </div>
+            )}
           </section>
 
           <div className="flex justify-end gap-3 pt-2">
