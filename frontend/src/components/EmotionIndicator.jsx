@@ -1,3 +1,4 @@
+import { useConfig } from "../context/ConfigContext";
 import {
   IconMoodSmile,
   IconMoodNeutral,
@@ -15,17 +16,10 @@ import {
 } from '@tabler/icons-react';
 
 export function EmotionIndicator({ data }) {
-  const emotionData = data ?? {
-    emotion: {
-      current: "happy",
-      intensity: 50
-    },
-    state: {
-      mood: 50,
-      focus: 50,
-      energy: 50
-    }
-  };
+  const { config, modelInfo, getProfileImage } = useConfig();
+
+  const characterName = config?.characterName || "Kokoro";
+  const emotionData = data;
 
   const getEmotionDetails = (emotion) => {
     switch (emotion) {
@@ -39,12 +33,14 @@ export function EmotionIndicator({ data }) {
       case 'hate': return { label: 'Odio', icon: IconFlame, color: 'text-orange-600' };
       case 'disgust': return { label: 'Asco', icon: IconMoodSick, color: 'text-lime-500' };
       case 'thinking': return { label: 'Pensando', icon: IconBrain, color: 'text-indigo-500' };
-      case 'neutral': 
+      case 'neutral':
       default: return { label: 'Neutral', icon: IconMoodNeutral, color: 'text-gray-500' };
     }
   };
 
   const { label, icon: EmotionIcon, color } = getEmotionDetails(emotionData.emotion.current);
+
+  const profileImgSrc = getProfileImage(modelInfo?.id);
 
   const renderBar = (value, colorClass) => {
     return (
@@ -57,6 +53,24 @@ export function EmotionIndicator({ data }) {
   return (
     <div className="w-full max-w-[18rem] p-4 bg-white/80 dark:bg-dark-elevated/90 backdrop-blur-md border border-slate-200 dark:border-dark-border rounded-2xl shadow-xl 
       transition-all duration-300 pointer-events-none">
+
+      <div className="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-dark-border pb-3">
+        <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-primary/10">
+          <img
+            src={profileImgSrc}
+            alt={characterName}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Personaje</p>
+          <p className="text-base font-bold text-slate-800 dark:text-slate-100 truncate">{characterName}</p>
+        </div>
+      </div>
+
       <div className="flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-dark-border pb-3">
         <div className={`p-2 rounded-full bg-slate-50 dark:bg-dark-surface shadow-inner ${color}`}>
           <EmotionIcon stroke={2} size={24} />

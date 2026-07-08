@@ -1,24 +1,53 @@
 import { useEffect, useState, useRef } from "react";
 import { helpHttp } from "../helpers/helpHttp.js";
 import Markdown from "react-markdown";
+import { useConfig } from "../context/ConfigContext";
+
+import PROFILE_KOKORO from "/assets/img/model_profile.png";
 
 import { IconArrowNarrowUp } from '@tabler/icons-react';
 
 export function Chat({ onEmotionUpdate }) {
-  const BASE_URL = "http://localhost:4000";
+  const { config, modelInfo, getProfileImage } = useConfig();
+  const BASE_URL = import.meta.env.VITE_API_URL || "";
   const URL_ANSWERS = `${BASE_URL}/chat`;
   const URL_EMOTION = `${BASE_URL}/emotion`;
+  const URL_TTS = `${BASE_URL}/tts`;
 
   const { post } = helpHttp();
 
+  const characterName = config?.characterName || "Kokoro";
+  const userName = config?.userName || "";
+  const aiModel = config?.aiModel || "google/gemma-4-31b-it:free";
+
+  const displayName = userName || "Tú";
+
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "¡Hola! Soy Kokoro. ¿En qué puedo ayudarte hoy?" }
+    { role: "assistant", content: `¡Hola! Soy ${characterName}. ¿En qué puedo ayudarte hoy?` }
   ]);
 
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+
+  const speakText = async (text) => {
+    try {
+      const res = await fetch(URL_TTS, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url);
+      audio.play();
+    } catch {
+      // TTS no disponible
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +92,12 @@ export function Chat({ onEmotionUpdate }) {
         "Content-Type": "application/json",
         "accept": "text/plain"
       },
-      body: { prompt: userMsg }
+      body: {
+        prompt: userMsg,
+        characterName,
+        userName,
+        model: aiModel,
+      }
     };
 
     const optionsEmotion = {
@@ -71,9 +105,12 @@ export function Chat({ onEmotionUpdate }) {
         "Content-Type": "application/json",
         "accept": "application/json"
       },
-      body: { prompt: userMsg }
+      body: {
+        prompt: userMsg,
+        characterName,
+        userName,
+      }
     };
-
 
     post(URL_EMOTION, optionsEmotion)
       .then((data) => {
@@ -109,17 +146,25 @@ export function Chat({ onEmotionUpdate }) {
           });
         }
         setIsTyping(false);
+        speakText(assistantMsg);
       })
       .catch(err => {
-        console.error(err);
+        console.error("Chat error:", err);
+        const msg = err?.statusText
+          || (err?.message === "Failed to fetch" ? "No se pudo conectar con el servidor. ¿Estará encendido el backend?" : null)
+          || err?.message
+          || "Error al conectar con el servidor";
         setMessages(prev => {
           const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1].content = "⚠️ *Hubo un error al conectar con el servidor.*";
+          newMsgs[newMsgs.length - 1].content = `⚠️ *${msg}*`;
           return newMsgs;
         });
         setIsTyping(false);
       });
   };
+
+  const aiProfileImg = getProfileImage(modelInfo?.id);
+  const userProfileImg = "/assets/img/model_profile.png";
 
   return (
     <div className="flex flex-col w-3xl h-full bg-white dark:bg-dark-base rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border overflow-hidden transition-colors duration-300">
@@ -127,40 +172,66 @@ export function Chat({ onEmotionUpdate }) {
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`flex max-w-[85%] sm:max-w-[75%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"} items-start gap-3`}>
 
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
-                msg.role === "user"
-                  ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light"
-                  : "bg-primary text-white"
-              }`}>
-                {msg.role === "user" ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                ) : (
-                  <span className="font-bold text-xs">K</span>
-                )}
+            <div className="flex gap-3 max-w-[85%] sm:max-w-[75%]">
+
+              <div className={`flex-shrink-0 ${msg.role === "user" ? "order-2" : "order-1"}`}>
+                <div className={`w-9 h-9 rounded-full overflow-hidden shadow-sm ${
+                  msg.role === "user"
+                    ? "bg-primary/10"
+                    : "bg-primary"
+                }`}>
+                  {msg.role === "user" ? (
+                    <img
+                      src={userProfileImg}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = PROFILE_KOKORO;
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={aiProfileImg}
+                      alt={characterName}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = PROFILE_KOKORO;
+                      }}
+                    />
+                  )}
+                </div>
               </div>
 
-              <div className={`px-4 py-3 rounded-2xl ${
-                msg.role === "user"
-                  ? "bg-primary text-white rounded-tr-none"
-                  : "bg-slate-100 dark:bg-dark-elevated text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-dark-border shadow-sm"
-              }`}>
-                {msg.content === "" && isTyping && msg.role === "assistant" ? (
-                  <div className="flex items-center gap-1 h-6">
-                    <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
-                ) : (
-                  <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 max-w-none break-words">
-                    <Markdown>{msg.content}</Markdown>
-                  </div>
-                )}
+              <div className={`flex flex-col gap-1 min-w-0 ${msg.role === "user" ? "order-1" : "order-2"}`}>
+                <span className={`text-xs font-semibold tracking-wide ${
+                  msg.role === "user"
+                    ? "text-primary text-right"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}>
+                  {msg.role === "user" ? displayName : characterName}
+                </span>
+
+                <div className={`px-4 py-3 rounded-2xl ${
+                  msg.role === "user"
+                    ? "bg-primary text-white rounded-tr-none"
+                    : "bg-slate-100 dark:bg-dark-elevated text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-dark-border shadow-sm"
+                }`}>
+                  {msg.content === "" && isTyping && msg.role === "assistant" ? (
+                    <div className="flex items-center gap-1 h-6">
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  ) : (
+                    <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 max-w-none break-words">
+                      <Markdown>{msg.content}</Markdown>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -177,7 +248,7 @@ export function Chat({ onEmotionUpdate }) {
             value={input}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="Escribe un mensaje a Kokoro..."
+            placeholder={`Escribe un mensaje a ${characterName}...`}
             className="w-full max-h-[150px] bg-transparent border-none focus:ring-0 resize-none py-3 px-4 text-slate-800 dark:text-slate-100 
               placeholder-slate-400 dark:placeholder-slate-500 min-h-[44px] overflow-y-auto outline-none"
             rows="1"
@@ -189,16 +260,11 @@ export function Chat({ onEmotionUpdate }) {
             className="flex-shrink-0 mb-1 mr-1 p-2.5 rounded-full bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer text-white transition-colors 
               focus:outline-none"
           >
-            {/* <svg className="w-5 h-5 translate-x-px -translate-y-px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg> */}
-
             <IconArrowNarrowUp stroke={2} size={24} />
-
           </button>
         </form>
         <div className="text-center mt-2">
-          <span className="text-xs text-slate-400 dark:text-slate-500">Kokoro puede cometer errores. Considera verificar la información.</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">{characterName} puede cometer errores. Considera verificar la información.</span>
         </div>
       </div>
     </div>

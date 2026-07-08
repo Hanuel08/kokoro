@@ -1,9 +1,20 @@
+import { emotionManager } from "./emotionManager.js";
+
 class AvatarController {
   model = null;
 
   setModel(model) {
     this.model = model;
+
+    const expressionManager =
+      this.model.internalModel.motionManager.expressionManager;
+
+    console.log("Expression Manager:", expressionManager);
+    console.log("Definitions:", expressionManager?.definitions);
+
+    emotionManager.setModel(this.model);
   }
+
 
   setExpression(expression = "neutral") {
     if (!this.model) return;

@@ -18,23 +18,24 @@ export const helpHttp = () => {
     
     setTimeout(() => controller.abort(), 1200000)
 
-    const error = (res) => {
-      return {
-        err: true,
-        status: res.status || "00",
-        statusText: res.statusText || "Ocurrió un error"
-      }
+    const getBody = (res) =>
+      res.text().then(text => {
+        let parsed;
+        try { parsed = JSON.parse(text) } catch { parsed = null }
+        return {
+          err: true,
+          status: res.status || "00",
+          statusText: parsed?.error || res.statusText || "Ocurrió un error",
+          body: text,
+        }
+      })
+
+    const handleResponse = async (res) => {
+      if (res.ok) return options?.headers?.accept === "application/json" ? res.json() : res;
+      throw await getBody(res);
     }
 
-    if (options?.headers?.accept != "application/json" ) {
-      return fetch(endpoint, options)
-        .then(res => res.ok ? res : Promise.reject(error(res)))
-        .catch(err => err)
-    }
-
-    return fetch(endpoint, options)
-      .then(res => res.ok ? res.json() : Promise.reject(error(res)))
-      .catch(err => err)
+    return fetch(endpoint, options).then(handleResponse)
   }
 
   const get = (url, options = {}) => customFetch(url, options)

@@ -1,34 +1,27 @@
 import { useEffect, useRef } from "react";
 import { avatarManager } from "../services/avatarManager.js";
+import { useConfig } from "../context/ConfigContext";
 
 export function Avatar() {
   const containerRef = useRef(null);
+  const { modelInfo } = useConfig();
+  const prevModelPath = useRef(null);
 
   useEffect(() => {
-    let isMounted = true;
     let onPointerMove;
     let onResize;
 
     async function init() {
       if (!containerRef.current) return;
-      
-      await avatarManager.init(containerRef.current);
-      
-      if (!isMounted) {
-        avatarManager.detach();
-        return () => {
-          isMounted = false;
-          
-          if (onPointerMove) {
-            window.removeEventListener("pointermove", onPointerMove);
-          }
-          if (onResize) {
-            window.removeEventListener('resize', onResize);
-          }
-          
-          // We don't call avatarManager.detach() here to avoid race conditions with React StrictMode.
-          // The canvas will safely move to the new container automatically on remount.
-        };
+
+      const modelPath = modelInfo?.modelPath || "/models/Hiyori/Hiyori.model3.json";
+      const needsReload = prevModelPath.current && prevModelPath.current !== modelPath;
+      prevModelPath.current = modelPath;
+
+      if (needsReload) {
+        await avatarManager.loadModel(modelPath);
+      } else {
+        await avatarManager.init(containerRef.current, modelPath);
       }
 
       onResize = () => {
@@ -46,23 +39,14 @@ export function Avatar() {
 
     init();
 
-    // return () => {
-    //   isMounted = false;
-      
-    //   if (onPointerMove) {
-    //     window.removeEventListener("pointermove", onPointerMove);
-    //   }
-    //   if (onResize) {
-    //     window.removeEventListener('resize', onResize);
-    //   }
-      
-    //   // We don't call avatarManager.detach() here to avoid race conditions with React StrictMode.
-    //   // The canvas will safely move to the new container automatically on remount.
-    // };
-  }, []);
+    return () => {
+      if (onPointerMove) window.removeEventListener("pointermove", onPointerMove);
+      if (onResize) window.removeEventListener('resize', onResize);
+    };
+  }, [modelInfo]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="w-full h-full flex items-center justify-center opacity-0 animate-fade-in pointer-events-none"
       style={{

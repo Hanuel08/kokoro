@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Live2DModel } from "pixi-live2d-display/cubism4";
 import { avatarController } from "./avatarController";
+import { emotionManager } from "./emotionManager";
 
 class AvatarManager {
   constructor() {
@@ -10,8 +11,7 @@ class AvatarManager {
     this.initPromise = null;
   }
 
-  async init(containerElement) {
-    // If already initializing, wait for it
+  async init(containerElement, modelPath) {
     if (this.initPromise) {
       await this.initPromise;
     }
@@ -21,14 +21,11 @@ class AvatarManager {
         this.app = new PIXI.Application({
           autoStart: true,
           backgroundAlpha: 0,
-          resizeTo: window, // We'll handle manual resize
+          resizeTo: window,
         });
 
         try {
-          this.model = await Live2DModel.from("/models/Hiyori/Hiyori.model3.json");
-          this.model.anchor.set(0.5);
-          this.app.stage.addChild(this.model);
-          avatarController.setModel(this.model);
+          await this._loadModel(modelPath || "/models/Hiyori/Hiyori.model3.json");
           this.isInitialized = true;
         } catch (err) {
           console.error("Error loading model:", err);
@@ -37,13 +34,46 @@ class AvatarManager {
       await this.initPromise;
     }
 
-    // Attach to the new container
     if (this.app && containerElement) {
       containerElement.appendChild(this.app.view);
       this.resize(containerElement);
     }
 
     return this.app;
+  }
+
+  async loadModel(modelPath) {
+    if (!this.app) {
+      console.warn("App not initialized yet. Model will be loaded on init.");
+      return;
+    }
+
+    await this._loadModel(modelPath);
+
+    if (this.app.view && this.app.view.parentNode) {
+      this.resize(this.app.view.parentNode);
+    }
+  }
+
+  async _loadModel(modelPath) {
+    if (this.model) {
+      this.app.stage.removeChild(this.model);
+      this.model = null;
+    }
+
+    this.model = await Live2DModel.from(modelPath);
+
+    this.model.internalModel.motionManager.groups.idle = '';
+
+    this.model.anchor.set(0.5);
+    this.app.stage.addChild(this.model);
+    avatarController.setModel(this.model);
+    emotionManager.flush();
+  }
+
+  getCurrentModelPath() {
+    if (!this.model) return null;
+    return this.model.internalModel?.settings?.url || null;
   }
 
   resize(containerElement) {
@@ -54,10 +84,9 @@ class AvatarManager {
 
     this.app.renderer.resize(width, height);
 
-    // CONFIGURACIÓN DEL AVATAR
-    const AVATAR_SCALE = 0.7; // Tamaño
-    const AVATAR_X = 0.45;     // Posición horizontal
-    const AVATAR_Y = 0.65;    // Posición vertical
+    const AVATAR_SCALE = 0.70;
+    const AVATAR_X = 0.50;
+    const AVATAR_Y = 0.47;
 
     const scale = Math.min(width / 1000, height / 1000) * AVATAR_SCALE;
 
@@ -65,15 +94,6 @@ class AvatarManager {
 
     this.model.x = width * AVATAR_X;
     this.model.y = height * AVATAR_Y;
-
-    // Debug (opcional)
-    console.log({
-      width,
-      height,
-      scale,
-      x: this.model.x,
-      y: this.model.y,
-    });
   }
 
   focus(x, y) {
@@ -83,7 +103,6 @@ class AvatarManager {
   }
 
   detach() {
-    // We don't destroy the app/model, we just detach the canvas from the DOM
     if (this.app && this.app.view && this.app.view.parentNode) {
       this.app.view.parentNode.removeChild(this.app.view);
     }

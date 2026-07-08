@@ -1,49 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useConfig } from "../context/ConfigContext";
 import { Chat } from "../components/Chat.jsx"
 import { Avatar } from "../components/Avatar.jsx"
 import { Header } from "../components/Header.jsx"
 import { EmotionIndicator } from "../components/EmotionIndicator.jsx"
+import { emotionManager } from "../services/emotionManager.js"
+import { Config } from "./Config.jsx"
 
 export function Main() {
+  const { config, isConfigured } = useConfig();
+  const [manualConfig, setManualConfig] = useState(false);
+  const showConfig = !isConfigured || manualConfig;
+
   const [emotionData, setEmotionData] = useState({
-    emotion: { current: "neutral", intensity: 50 },
+    emotion: { current: "excited", intensity: 50 },
     state: { mood: 50, focus: 50, energy: 50 }
   });
 
+  useEffect(() => {
+    emotionManager.update(emotionData);
+  }, [emotionData]);
+
+  const handleOpenConfig = () => setManualConfig(true);
+  const handleCloseConfig = () => setManualConfig(false);
+
+  if (showConfig) {
+    return <Config onClose={isConfigured ? handleCloseConfig : undefined} />;
+  }
+
   return (
     <div className="flex flex-col h-screen relative overflow-hidden">
-      <Header />
+      <Header onOpenConfig={handleOpenConfig} />
 
-      <main className="flex-1 flex w-full max-w-6xl mx-auto relative z-0 min-h-0">
+      <main className="flex-1 flex w-[1500px] mx-auto relative z-0 min-h-0">
 
-        <div className="flex flex-col w-full md:w-2/3 lg:w-3/4 p-4 z-10 h-full">
-          <Chat onEmotionUpdate={setEmotionData} />
+        <div className="flex w-full md:w-2/3 lg:w-3/4 p-4 z-10 h-full relative">
+          <div className="top-4 z-20 mr-4" style={{ right: "calc(100% + 0.75rem)", width: "18rem" }}>
+            <EmotionIndicator data={emotionData} />
+          </div>
+          <Chat key={config?.characterName || "Kokoro"} onEmotionUpdate={setEmotionData} />
         </div>
 
-        <div className="hidden md:flex md:w-1/3 lg:w-100 py-4 z-10 h-60 justify-start items-center">
-          <EmotionIndicator data={emotionData} />
-        </div>
-
-        {/* Avatar Area - Responsive positioning (side on desktop, background on mobile) */}
-        {/* <div className="absolute inset-0 z-[-1] opacity-30 md:opacity-100 md:relative md:z-0 md:w-1/3 lg:w-1/4 pointer-events-none flex items-end md:items-center justify-center pb-10 md:pb-0">
-          <Avatar />
-        </div> */}
-
-        {/* <div className="absolute w-50 inset-0 z-[-1] opacity-30 md:opacity-100 md:relative md:z-0 md:w-1/3 lg:w-1/4 pointer-events-none flex items-end md:items-center 
-          justify-center pb-10 md:pb-0">
-
-          <Avatar />
-        </div> */}
-
-
-        {/* <div className="absolute right-0 bottom-0 w-[400px] h-[800px] pointer-events-none z-0 border-amber-500 border-4">
-          <Avatar />
-        </div> */}
-
-        <div className="absolute right-0 bottom-0 w-[400px] h-[800px] pointer-events-none z-0">
+        <div className="flex w-[440px] h-[1190px] pointer-events-none z-0">
           <Avatar />
         </div>
-
 
       </main>
     </div>
