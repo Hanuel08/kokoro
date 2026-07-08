@@ -101,35 +101,46 @@ export function Chat({ onEmotionUpdate }) {
       }
     };
 
-    const optionsEmotion = {
-      headers: {
-        "Content-Type": "application/json",
-        "accept": "application/json"
-      },
-      body: {
-        prompt: userMsg,
-        characterName,
-        userName,
-        modelId: modelInfo?.id,
-      }
+    const sendEmotion = (delay = 10000) => {
+      setTimeout(() => {
+        const optionsEmotion = {
+          headers: {
+            "Content-Type": "application/json",
+            "accept": "application/json"
+          },
+          body: {
+            prompt: userMsg,
+            characterName,
+            userName,
+            modelId: modelInfo?.id,
+          }
+        };
+        console.log("[Emotion] Enviando petición a:", URL_EMOTION, optionsEmotion);
+        post(URL_EMOTION, optionsEmotion)
+          .then((data) => {
+            console.log("[Emotion] Respuesta recibida:", JSON.stringify(data));
+            if (!data || data?.err || !data?.emotion?.current) {
+              console.warn("[Emotion] Data inválida:", data);
+              return;
+            }
+            console.log("[Emotion] Actualizando emoción:", data.emotion.current, "intensidad:", data.emotion.intensity);
+            onEmotionUpdate(data);
+          })
+          .catch((err) => {
+            console.warn("[Emotion] Error en fetch:", err?.statusText || err?.message || err);
+          });
+      }, delay);
     };
 
-    post(URL_EMOTION, optionsEmotion)
-      .then((data) => {
-        if (!data || data?.err || !data?.emotion?.current) {
-          console.warn("Emotion: data inválida:", data);
-          return;
-        }
-        console.log("Emotion: ", data);
-        onEmotionUpdate(data);
-      })
-      .catch((err) => {
-        console.warn("Emotion fetch error:", err);
-      });
-
+    console.log("[Chat] Enviando petición a:", URL_ANSWERS, optionsAnswers);
+    sendEmotion(2000);
     post(URL_ANSWERS, optionsAnswers)
       .then(async (res) => {
-        if (!res.ok) throw new Error("Error al obtener la respuesta");
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("[Chat] Respuesta no ok:", res.status, text);
+          throw new Error("Error al obtener la respuesta");
+        }
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -184,7 +195,7 @@ export function Chat({ onEmotionUpdate }) {
                 <div className={`w-9 h-9 rounded-full overflow-hidden shadow-sm ${
                   msg.role === "user"
                     ? "bg-primary/10"
-                    : "bg-primary"
+                    : "bg-[#CE5374]"
                 }`}>
                   {msg.role === "user" ? (
                     <img
@@ -211,7 +222,7 @@ export function Chat({ onEmotionUpdate }) {
               <div className={`flex flex-col gap-1 min-w-0 ${msg.role === "user" ? "order-1" : "order-2"}`}>
                 <span className={`text-xs font-semibold tracking-wide ${
                   msg.role === "user"
-                    ? "text-primary text-right"
+                    ? "text-[#CE5374] text-right"
                     : "text-slate-500 dark:text-slate-400"
                 }`}>
                   {msg.role === "user" ? displayName : characterName}

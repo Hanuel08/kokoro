@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@huggingface/inference": "^4.13.22",
     "@openrouter/sdk": "^0.12.35",
     "@tabler/icons-react": "^3.44.0",
     "openai": "^6.38.0"

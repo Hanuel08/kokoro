@@ -63,15 +63,16 @@ app.delete("/upload/profile", (req, res) => {
   }
 });
 
-const limiter = rateLimit({
+const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
   message: { error: "Too many requests, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === "/chat" || req.path === "/emotion",
 });
 
-app.use(limiter);
+app.use(globalLimiter);
 
 app.use(aiRouter);
 app.use(ttsRouter);

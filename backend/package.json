@@ -11,6 +11,7 @@
     "dev": "node --env-file .env --watch src/index.js"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.22",
     "@openrouter/sdk": "^0.12.35",
     "cors": "^2.8.6",
     "express": "^5.2.1",
