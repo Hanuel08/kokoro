@@ -37,7 +37,7 @@ export function Avatar() {
       window.addEventListener("pointermove", onPointerMove);
     }
 
-    init();
+    init().catch(err => console.error("Avatar init failed:", err));
 
     return () => {
       if (onPointerMove) window.removeEventListener("pointermove", onPointerMove);

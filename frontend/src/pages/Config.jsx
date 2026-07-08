@@ -176,7 +176,8 @@ export function Config({ onClose }) {
                   value={profileImageUrl}
                   onChange={(e) => setProfileImageUrl(e.target.value)}
                   placeholder={getDefaultProfileImage(modelId)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-surface text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-dark-border bg-white dark:bg-dark-surface text-slate-800 dark:text-slate-100
+                  placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-colors text-sm"
                 />
               </div>
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
@@ -191,7 +192,7 @@ export function Config({ onClose }) {
               Tu información
             </h2>
 
-            <div>
+            <div className="mb-5">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Tu nombre
               </label>
@@ -204,6 +205,70 @@ export function Config({ onClose }) {
               />
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Cómo se dirigirá la IA hacia ti (opcional)
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
+                <IconPhoto size={16} />
+                Foto de perfil
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="size-10 rounded-full overflow-hidden shrink-0 border border-slate-200 dark:border-dark-border bg-slate-100 dark:bg-dark-surface my-2">
+                  <img
+                    src={config?.userProfileUploaded ? "/assets/img/user/user_profile.jpg" : "/assets/img/user/default_profile.jpg"}
+                    alt="Tu perfil"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "/assets/img/user/default_profile.jpg";
+                    }}
+                  />
+                </div>
+                <label className="px-4 py-2 rounded-xl border border-slate-300 dark:border-dark-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-hover transition-colors cursor-pointer font-medium text-sm">
+                  {config?.userProfileUploaded ? "Cambiar foto" : "Subir foto"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append("profile", file);
+                      try {
+                        const res = await fetch("/upload/profile", {
+                          method: "POST",
+                          body: formData,
+                        });
+                        if (res.ok) {
+                          updateConfig({ userProfileUploaded: true });
+                        } else {
+                          alert("Error al subir la imagen");
+                        }
+                      } catch {
+                        alert("Error al conectar con el servidor");
+                      }
+                    }}
+                  />
+                </label>
+                {config?.userProfileUploaded && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/upload/profile", { method: "DELETE" });
+                        if (res.ok) updateConfig({ userProfileUploaded: false });
+                      } catch {
+                        alert("Error al eliminar la imagen");
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer font-medium text-sm"
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                Sube una foto tuya (jpg, png, webp)
               </p>
             </div>
           </section>

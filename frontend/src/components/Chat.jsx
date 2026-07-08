@@ -97,6 +97,7 @@ export function Chat({ onEmotionUpdate }) {
         characterName,
         userName,
         model: aiModel,
+        modelId: modelInfo?.id,
       }
     };
 
@@ -109,6 +110,7 @@ export function Chat({ onEmotionUpdate }) {
         prompt: userMsg,
         characterName,
         userName,
+        modelId: modelInfo?.id,
       }
     };
 
@@ -164,7 +166,9 @@ export function Chat({ onEmotionUpdate }) {
   };
 
   const aiProfileImg = getProfileImage(modelInfo?.id);
-  const userProfileImg = "/assets/img/model_profile.png";
+  const userProfileImg = config?.userProfileUploaded
+    ? "/assets/img/user/user_profile.jpg"
+    : "/assets/img/user/default_profile.jpg";
 
   return (
     <div className="flex flex-col w-3xl h-full bg-white dark:bg-dark-base rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border overflow-hidden transition-colors duration-300">

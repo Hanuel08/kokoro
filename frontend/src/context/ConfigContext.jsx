@@ -13,7 +13,6 @@ const AVAILABLE_MODELS = [
   { id: "Rice",   name: "Rice",   modelPath: "/models/Rice/Rice.model3.json" },
   { id: "Wanko",  name: "Wanko",  modelPath: "/models/Wanko/Wanko.model3.json" },
   { id: "Mark",   name: "Mark",   modelPath: "/models/Mark/Mark.model3.json" },
-  { id: "Ren",    name: "Ren",    modelPath: "/models/Ren/Ren.model3.json" },
 ];
 
 const DEFAULT_AI_MODEL = "google/gemma-4-31b-it:free";
@@ -24,6 +23,7 @@ const DEFAULT_CONFIG = {
   userName: "",
   aiModel: DEFAULT_AI_MODEL,
   profileImages: {},
+  userProfileUploaded: false,
 };
 
 function loadConfig() {

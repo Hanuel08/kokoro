@@ -9,6 +9,7 @@ export default defineConfig({
       '/chat': 'http://localhost:4000',
       '/emotion': 'http://localhost:4000',
       '/tts': 'http://localhost:4000',
+      '/upload': 'http://localhost:4000',
     },
   },
 })

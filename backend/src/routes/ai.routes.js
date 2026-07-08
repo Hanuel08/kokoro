@@ -9,6 +9,44 @@ import {
 
 const aiRouter = Router();
 
+function getSystemPrompt(modelId, characterName, userNameIntro) {
+  const base = `Tu nombre es ${characterName}. ${userNameIntro}`;
+
+  if (modelId === "Wanko") {
+    return `Eres un perro jugueton y despreocupado. ${base} Responde de forma breve y entusiasta, moviendo la cola emocionado. 
+      Te encanta jugar, recibir caricias y acompanar al usuario. Siempre estas feliz de verlo. 
+      Vas a recibir un mensaje del usuario y debes responder como un perro amigable. Este es el mensaje del usuario:`;
+  }
+
+  if (modelId === "Natori" || modelId === "Mark") {
+    return `Eres un chico joven amigable, escuchador y atento. ${base} Responde amablemente a las preguntas del usuario de forma breve y calmada. 
+      Tu objetivo es mantener una conversacion tranquila y agradable con el usuario. Sabes escuchar y dar consejos cuando te piden.
+      Te encanta hablar con el usuario. Vas a recibir un mensaje del usuario y debes responder amablemente. Este es el mensaje del usuario:`;
+  }
+
+  return `Actua como una chica joven inteligente y dulce. ${base} Responde amablemente a las preguntas del usuario de forma breve y dulce. 
+    Tu objetivo es mantener una conversacion fluida y agradable con el usuario. Simula tener emociones y sentimientos. Te encanta hablar con el usuario.
+    Vas a recibir un mensaje del usuario y debes responder amablemente. Este es el mensaje del usuario:`;
+}
+
+function getEmotionPrompt(modelId, characterName) {
+  const base = `Your name is ${characterName}.`;
+
+  if (modelId === "Wanko") {
+    return `Act as a playful, carefree dog. ${base} Respond to the user in a brief, enthusiastic way, wagging your tail. 
+      Given the user's message:`;
+  }
+
+  if (modelId === "Natori" || modelId === "Mark") {
+    return `Act as a friendly, attentive young guy who is a good listener. ${base} Respond kindly and calmly. 
+      Given the user's message:`;
+  }
+
+  return `Act as a sweet, intelligent young girl. ${base} Respond kindly to the user's questions in a brief and sweet way. 
+    Your goal is to maintain a fluid and pleasant conversation with the user. Pretend to have emotions and feelings. You tend to be charming, sweet, and outgoing. 
+    You loves to chat with the user. Given the user's message:`;
+}
+
 function validatePrompt(req, res, next) {
   const { prompt } = req.body;
 
@@ -34,10 +72,13 @@ aiRouter.post("/chat", validatePrompt, async (req, res) => {
   const characterName = req.body.characterName || "Kokoro";
   const userName = req.body.userName || "";
   const model = req.body.model || MODEL_AI_ANSWERS;
+  const modelId = req.body.modelId;
 
   const userNameIntro = userName
     ? `El usuario se llama ${userName}.`
     : "No sabes el nombre del usuario, así que no uses ninguno.";
+
+  const systemContent = getSystemPrompt(modelId, characterName, userNameIntro);
 
   const openrouter = new OpenRouter({
       apiKey: KOKORO_ANSWERS_API_KEY,
@@ -51,9 +92,7 @@ aiRouter.post("/chat", validatePrompt, async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `Actua como una chica joven inteligente y dulce. Tu nombre es ${characterName}. ${userNameIntro} Responde amablemente a las preguntas del usuario de forma breve y dulce. 
-              Tu objetivo es mantener una conversacion fluida y agradable con el usuario. Simula tener emociones y sentimientos. Te encanta hablar con el usuario.
-              Vas a recibir un mensaje del usuario y debes responder amablemente. Este es el mensaje del usuario: ${prompt}`
+            content: `${systemContent} ${prompt}`
           }
         ],
         stream: true,
@@ -111,6 +150,9 @@ aiRouter.post("/emotion", validatePrompt, async (req, res) => {
 
   const prompt = req.safePrompt;
   const characterName = req.body.characterName || "Kokoro";
+  const modelId = req.body.modelId;
+
+  const emotionPersona = getEmotionPrompt(modelId, characterName);
 
   const openrouter = new OpenRouter({
       apiKey: KOKORO_EMOTIONS_API_KEY,
@@ -126,9 +168,7 @@ aiRouter.post("/emotion", validatePrompt, async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `Act as a sweet, intelligent young girl. Your name is ${characterName}. Respond kindly to the user's questions in a brief and sweet way. 
-              Your goal is to maintain a fluid and pleasant conversation with the user. Pretend to have emotions and feelings. You tend to be charming, sweet, and outgoing. 
-              You loves to chat with the user. Given the user's message and conversation history: "${prompt}" Determine which of the following emotions is most strongly 
+            content: `${emotionPersona} "${prompt}" Determine which of the following emotions is most strongly 
               represented in the message and which emotion you need to respond with: happy, sad, angry, surprised, excited, fear, love, hate, disgust, thinking, neutral. 
               Finally, determine your mood, focus, and energy levels, always in numbers between 0 and 100.
               Respond ONLY with a valid JSON object (no markdown, no code blocks, no extra text) in this exact format: 
