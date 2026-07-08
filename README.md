@@ -4,8 +4,12 @@ Una aplicación de chat con asistentes virtuales 3D que utilizan modelos Live2D 
 
 ## Capturas de pantalla
 
-<!-- Agrega aquí tus imágenes -->
-<!-- ![Vista principal](screenshots/main.png) -->
+![Vista principal](./frontend/public/assets/img/screenshots/main-1.png)
+
+![Vista de configuración](./frontend/public/assets/img/screenshots/main-2.png)
+
+![Vista de chat](./frontend/public/assets/img/screenshots/config.png)
+
 
 ## Características
 
